@@ -1,0 +1,8 @@
+- name: Generate application key
+  shell: |
+    cd /vagrant
+    if [ -f .env ] && [ -f artisan ] && grep -q APP_KEY=SomeRandomString .env; then
+      php artisan key:generate
+    fi
+  register: appkey
+  changed_when: appkey.stdout != ''

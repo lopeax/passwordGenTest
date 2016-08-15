@@ -1,0 +1,25 @@
+- name: Import NodeSource GPG key
+  apt_key: url=https://deb.nodesource.com/gpgkey/nodesource.gpg.key
+
+- name: Add Node.js v0.12 APT repository
+  apt_repository: repo="deb https://deb.nodesource.com/node_0.12 trusty main"
+
+- name: Install/upgrade Node.js and npm
+  apt: pkg=nodejs state=latest
+
+- name: Configure Node.js
+  # Note: This has to be in ~vagrant/.npmrc not /etc/npmrc because we only want
+  # it to apply to the packages in /vagrant/, not the globally installed
+  # packages (which are installed as root). Unfortunately /vagrant/.npmrc is
+  # ignored because we can't set the permissions to 0600 in the Vagrant shared
+  # directory. (https://docs.npmjs.com/files/npmrc)
+  copy: src=npmrc.ini dest=~vagrant/.npmrc owner=vagrant group=vagrant mode=0600
+
+- name: Check if package.json exists
+  stat: path=/vagrant/package.json
+  register: package_json
+
+- name: Install modules from package.json
+  npm: path=/vagrant
+  become: no # So that ~vagrant/.npmrc is honoured
+  when: package_json.stat.exists

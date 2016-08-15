@@ -1,0 +1,18 @@
+<VirtualHost *:80>
+
+    ServerName ngrok.{{ ansible_fqdn }}
+
+    ProxyPass / http://localhost:4040/
+    ProxyPassReverse / http://localhost:4040/
+
+    ErrorDocument 503 "ngrok is not currently running..."
+
+</VirtualHost>
+
+<Directory /srv/phpmyadmin-STABLE>
+
+    Options Indexes FollowSymLinks MultiViews
+    AllowOverride All
+    Require all granted
+
+</Directory>

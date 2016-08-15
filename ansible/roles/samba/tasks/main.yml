@@ -1,0 +1,16 @@
+- name: Install Samba
+  apt: pkg=samba state=installed
+
+- name: Create Samba user
+  shell: |
+    (pdbedit -L | grep -q "^{{ item.username }}:") ||
+    (echo "{{ item.password }}"; echo "{{ item.password }}") | smbpasswd -as "{{ item.username }}"
+  with_items:
+    - username: vagrant
+      password: vagrant
+  register: samba
+  changed_when: samba.stdout != ''
+
+- name: Configure Samba
+  copy: src=smb.conf dest=/etc/samba/smb.conf mode=0644
+  notify: Restart Samba

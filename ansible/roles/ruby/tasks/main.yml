@@ -1,0 +1,17 @@
+- name: Install Ruby and Bundler
+  apt: pkg={{ item }} state=installed
+  with_items:
+    - ruby
+    - ruby-dev
+    - bundler
+
+- name: Check if Gemfile exists
+  stat: path=/vagrant/Gemfile
+  register: gemfile
+
+- name: Install Ruby gems from Gemfile
+  # The Bundler module is not available until Ansible 2.0.0 is released
+  #bundler: chdir=/vagrant state=present
+  shell: umask 022 && bundle install chdir=/vagrant
+  become: no
+  when: gemfile.stat.exists

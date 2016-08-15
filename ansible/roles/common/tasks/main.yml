@@ -1,0 +1,52 @@
+- name: Configure sudo
+  copy: src=sudoers dest=/etc/sudoers.d/custom mode=0440
+
+- name: Set timezone
+  template: dest=/etc/timezone src=timezone.j2
+  register: timezone
+
+- name: Reconfigure tzdata
+  command: dpkg-reconfigure --frontend noninteractive tzdata
+  when: timezone.changed
+
+- name: Install known hosts file
+  copy: src=known_hosts dest=/etc/ssh/ssh_known_hosts mode=0644
+
+- name: Remove Chef
+  apt: name=chef state=absent
+
+- name: Autoremove unused packages
+  command: apt-get -y autoremove
+  register: autoremove
+  changed_when: "'The following packages will be REMOVED' in autoremove.stdout"
+
+- name: Upgrade packages
+  apt: upgrade=yes update_cache=yes cache_valid_time=3600
+
+- name: Install common packages
+  apt: pkg={{ item }} state=installed
+  with_items:
+    - dos2unix
+    - git
+    - htop
+    - unzip
+    - zip
+
+- name: Install/update submodules
+  shell: "git submodule sync && git submodule update --init  chdir=/vagrant"
+  register: submodules
+  # e.g: Submodule path 'swiftmailer': checked out 'a73b60218b75352d8474b52d0a0aa94c0286fa67'
+  changed_when: "'Submodule path' in submodules.stdout"
+
+- name: Check for ignored files
+  stat: path=/vagrant/{{ item }}.example
+  with_items: ignored_files
+  register: ignored_stat
+
+- name: Create ignored files
+  shell: 'cp "/vagrant/{{ item.1 }}.example" "/vagrant/{{ item.1 }}" creates="/vagrant/{{ item.1 }}"'
+  with_indexed_items: ignored_files
+  # Skip any .example files that don't actually exist, instead of erroring - so
+  # we don't have to remember to comment them out in playbook.yml. Mark them as
+  # skipped instead of just OK so we can see them in the output.
+  when: ignored_stat.results[item.0].stat.exists

@@ -1,0 +1,83 @@
+#===============================================================================
+# Vagrant VM
+#===============================================================================
+
+- hosts: vagrant
+  become: true # Need sudo for most tasks
+
+  #----------------------------------------
+  # Roles
+  #----------------------------------------
+
+  # Select the functionality you want this VM to have - comment out the rest:
+  roles:
+    - common
+
+    # Web server
+    - apache
+
+    # Programming languages
+    - php         # Requires: apache
+    - nodejs
+    - python
+    #- ruby
+
+    # Extensions
+    #- ioncube     # Requires: php
+
+    # Database
+    - mysql
+    - phpmyadmin  # Requires: mysql, apache, php
+
+    # Email
+    - mail
+    - roundcube   # Requires: mail, apache, php, mysql
+
+    # Build tools & task runners
+    #- awe         # Requires: nodejs, ruby
+    - bower       # Requires: nodejs
+    #- grunt       # Requires: nodejs
+    #- gulp        # Requires: nodejs
+
+    # Other tools
+    - ngrok       # Remote access tunnel           - Requires: apache
+    - samba       # Share directories with Windows
+    - tailon      # Log viewer                     - Requires: python
+
+    # CMS/framework setup
+    #- laravel
+    #- wordpress
+
+    # Project-specific setup
+    - custom
+
+  #----------------------------------------
+  # Settings
+  #----------------------------------------
+
+  # These settings can be customised if required. (If you need to change
+  # anything more advanced, edit the files in roles/ directly.)
+  vars:
+
+    # List of files to create if they don't exist - must have a matching
+    # "<file>.example" file to copy. To check if you missed any, run:
+    # git ls-files --others --ignored --exclude-standard --directory
+    ignored_files:
+      - .bundle/config
+      - .env
+      - www/.htaccess
+      - www/wp-config.php
+
+    # List of MySQL databases to create. The 'vagrant' user will have full
+    # permissions on all databases. (If you need to create a user with more
+    # limited permissions, configure it in the 'custom' role.)
+    mysql_dbs:
+      - site
+
+    # Timezone - see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+    timezone: Europe/London
+
+#===============================================================================
+
+# Additional hosts could be added here if needed - e.g. additional Vagrant VMs,
+# or provisioning cloud servers...

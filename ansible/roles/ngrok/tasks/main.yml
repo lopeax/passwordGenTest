@@ -1,0 +1,23 @@
+# The version in APT is 1.x not 2.x
+# - name: Install ngrok client
+#   apt: pkg=ngrok-client state=installed
+
+- name: Download ngrok client
+  # The version number is hard-coded here because there doesn't seem to be a way to get the latest version
+  # Check for new versions at: https://ngrok.com/download
+  get_url: url=https://dl.ngrok.com/ngrok_2.0.19_linux_amd64.zip dest=/root/ngrok.zip
+  register: download_ngrok
+
+- name: Extract ngrok client
+  unarchive: copy=no src=/root/ngrok.zip dest=/usr/local/bin
+  when: download_ngrok.changed
+  # This doesn't work in Ansible 1.9.2 - looks like it will be added in 2.0:
+  # unarchive: src=https://dl.ngrok.com/ngrok_2.0.19_linux_amd64.zip copy=no dest=/usr/local/bin
+
+- name: Enable Apache proxy module
+  apache2_module: name=proxy_http state=present
+  notify: Reload Apache configuration
+
+- name: Configure Apache vhost for ngrok
+  template: src=apache.conf.j2 dest=/etc/apache2/sites-enabled/ngrok.conf mode=0644
+  notify: Reload Apache configuration

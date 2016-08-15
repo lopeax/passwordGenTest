@@ -1,0 +1,40 @@
+# Note: This script will not check for phpMyAdmin updates, but you can force it to upgrade:
+# sudo rm -rf /root/phpmyadmin.tar.gz /srv/phpmyadmin-STABLE
+# /vagrant/ansible/bootstrap/vagrant.sh
+
+- name: Download phpMyAdmin
+  get_url: url=https://github.com/phpmyadmin/phpmyadmin/archive/STABLE.tar.gz dest=/root/phpmyadmin.tar.gz
+  register: download_pma
+
+- name: Extract phpMyAdmin
+  unarchive: copy=no src=/root/phpmyadmin.tar.gz dest=/srv
+  when: download_pma.changed
+  # This doesn't work in Ansible 1.9.2 - looks like it will be added in 2.0:
+  # unarchive: src=https://github.com/phpmyadmin/phpmyadmin/archive/STABLE.zip copy=no dest=/srv
+  # Using Git is very slow (takes about 6 minutes longer), even with depth=1:
+  # git: repo=git://github.com/phpmyadmin/phpmyadmin.git version=STABLE depth=1 dest=/srv/phpmyadmin
+
+- name: Create phpMyAdmin configuration storage database
+  mysql_db: name=phpmyadmin state=present
+
+- name: Create MySQL user 'pma'
+  mysql_user:
+    name:     pma
+    host:     localhost
+    password: pma
+    priv:     phpmyadmin.*:ALL
+    state:    present
+
+- name: Initialise phpMyAdmin configuration storage database
+  mysql_db: state=import name=phpmyadmin target=/srv/phpmyadmin-STABLE/sql/create_tables.sql
+  when: download_pma.changed
+
+- name: Configure phpMyAdmin
+  template: src=config.inc.php.j2 dest=/srv/phpmyadmin-STABLE/config.inc.php
+
+- name: Configure PHP for phpMyAdmin
+  copy: src=.user.ini dest=/srv/phpmyadmin-STABLE/.user.ini
+
+- name: Configure Apache vhost for phpMyAdmin
+  template: src=apache.conf.j2 dest=/etc/apache2/sites-enabled/phpmyadmin.conf mode=0644
+  notify: Reload Apache configuration

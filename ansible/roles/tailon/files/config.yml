@@ -1,0 +1,16 @@
+# Change port number - the default of 8080 is too common
+bind: 127.0.0.1:54845
+
+# Allow log file downloads
+allow-transfers: true
+
+# Allowed commands
+commands: [tail, grep, awk]
+
+# File to list, grouped by type
+files:
+  - Logs:
+    - /var/log/apache2/access.log
+    - /var/log/apache2/error.log
+    - /var/log/suphp/suphp.log
+    - /var/log/syslog

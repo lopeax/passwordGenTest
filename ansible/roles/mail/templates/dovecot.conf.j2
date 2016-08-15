@@ -1,0 +1,34 @@
+# Need write access to /var/mail
+mail_privileged_group = mail
+
+# Create required mailboxes automatically
+# Based on http://wiki2.dovecot.org/MailboxSettings
+namespace inbox {
+  #prefix = INBOX. # the namespace prefix isn't added again to the mailbox names.
+  # ...
+
+  mailbox Trash {
+    auto = subscribe
+    special_use = \Trash
+  }
+  mailbox Drafts {
+    auto = subscribe
+    special_use = \Drafts
+  }
+  mailbox Sent {
+    auto = subscribe # autocreate and autosubscribe the Sent mailbox
+    special_use = \Sent
+  }
+  mailbox "Sent Messages" {
+    auto = no
+    special_use = \Sent
+  }
+  mailbox Spam {
+    auto = create # autocreate Spam, but don't autosubscribe
+    special_use = \Junk
+  }
+  mailbox virtual/All { # if you have a virtual "All messages" mailbox.
+    auto = no
+    special_use = \All
+  }
+}

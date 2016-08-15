@@ -1,0 +1,32 @@
+- name: Download Roundcube
+  get_url: url=https://downloads.sourceforge.net/project/roundcubemail/roundcubemail/1.1.3/roundcubemail-1.1.3-complete.tar.gz dest=/root/roundcube.tar.gz
+  register: download_roundcube
+
+- name: Extract Roundcube
+  unarchive: copy=no src=/root/roundcube.tar.gz dest=/srv owner=root group=root
+  when: download_roundcube.changed
+  # This doesn't work in Ansible 1.9.2 - looks like it will be added in 2.0:
+  # unarchive: src=https://downloads.sourceforge.net/project/roundcubemail/roundcubemail/1.1.3/roundcubemail-1.1.3-complete.tar.gz copy=no dest=/srv
+
+- name: Create MySQL database for Roundcube
+  mysql_db: name=roundcube state=present
+  register: roundcube_db
+
+- name: Create MySQL user 'roundcube'
+  mysql_user:
+    name:     roundcube
+    host:     '%'
+    password: roundcube
+    priv:     'roundcube.*:ALL'
+    state:    present
+
+- name: Initialise Roundcube database
+  mysql_db: state=import name=roundcube target=/srv/roundcubemail-1.1.3/SQL/mysql.initial.sql
+  when: roundcube_db.changed
+
+- name: Configure Roundcube
+  template: src=config.inc.php.j2 dest=/srv/roundcubemail-1.1.3/config/config.inc.php
+
+- name: Configure Apache vhost for Roundcube
+  template: src=apache.conf.j2 dest=/etc/apache2/sites-enabled/roundcube.conf mode=0644
+  notify: Reload Apache configuration

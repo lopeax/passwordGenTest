@@ -1,0 +1,68 @@
+#===============================================================================
+# Common
+#===============================================================================
+
+# Environment config
+/.env
+
+# Executables (e.g. wkhtmltopdf)
+/bin/
+
+# Backups
+/backups/
+
+# Maintenance mode switch
+/MAINTENANCE
+
+# Sessions
+/sessions/*
+
+# Vagrant
+/.vagrant/
+
+# Package managers
+/node_modules/
+/vendor/
+
+# Sass / Compass
+/.sass-cache/
+
+# npm
+npm-debug.log
+
+# cPanel files
+/www/cgi-bin/
+.ftpquota
+
+# Log files
+/logs/
+error_log
+
+# Xdebug profiler
+/xdebug-profiler/
+
+# Compiled files
+*.pyc
+
+# Editor files
+nbproject/
+*.sublime-workspace
+~$*
+
+# Operating system files
+.DS_Store
+desktop.ini
+Thumbs.db
+
+#===============================================================================
+# Project-specific
+#===============================================================================
+
+
+
+#===============================================================================
+# Common
+#===============================================================================
+
+# This must be last to take priority
+!.gitkeep

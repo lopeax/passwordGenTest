@@ -1,0 +1,4 @@
+[mysqld]
+
+; Make the MySQL Server accessible from the host machine
+bind-address = 0.0.0.0

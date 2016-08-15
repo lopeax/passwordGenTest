@@ -1,0 +1,20 @@
+- name: Download ionCube Loader
+  get_url: url=http://downloads3.ioncube.com/loader_downloads/ioncube_loaders_lin_x86-64.tar.gz dest=/root/ioncube_loaders_lin_x86-64.tar.gz
+  register: download_ioncube
+
+- name: Extract ionCube Loader
+  unarchive: copy=no src=/root/ioncube_loaders_lin_x86-64.tar.gz dest=/usr/local
+  when: download_ioncube.changed
+  # This doesn't work in Ansible 1.9.2 - looks like it will be added in 2.0:
+  # unarchive: src=http://downloads3.ioncube.com/loader_downloads/ioncube_loaders_lin_x86-64.tar.gz copy=no dest=/usr/local
+
+- name: Configure ionCube Loader
+  copy: src=ioncube.ini dest=/etc/php5/mods-available/ioncube.ini
+
+- name: Enable ionCube Loader
+  command: /usr/sbin/php5enmod ioncube creates=/etc/php5/cli/conf.d/01-ioncube.ini
+
+# Disable Xdebug as they conflict
+# Tip: Re-enable with "sudo php5enmod xdebug" and disable with "sudo php5dismod xdebug"
+- name: Disable Xdebug
+  command: /usr/sbin/php5dismod xdebug removes=/etc/php5/cli/conf.d/20-xdebug.ini

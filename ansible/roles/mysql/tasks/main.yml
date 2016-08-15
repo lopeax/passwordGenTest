@@ -1,0 +1,49 @@
+- name: Install MySQL packages
+  apt: pkg={{ item }} state=installed
+  with_items:
+    - mysql-client
+    - mysql-server
+
+    # This is required by Ansible
+    - python-mysqldb
+
+- name: Change MySQL root password
+  # This doesn't make it any more secure, but stops phpMyAdmin complaining
+  mysql_user: name=root password=root state=present
+
+- name: Configure MySQL for root user
+  copy: src=root.cnf dest=~root/.my.cnf owner=root group=root mode=0600
+
+- name: Create MySQL databases
+  mysql_db: name={{ item }} state=present
+  with_items: mysql_dbs
+  register: created_dbs
+
+- name: Create MySQL user 'vagrant'
+  mysql_user:
+    name:     vagrant
+    host:     '%'
+    password: vagrant
+    priv:     '{{ mysql_dbs | join(".*:ALL/") }}.*:ALL' # e.g. "db1.*:ALL/db2.*:ALL"
+    state:    present
+
+- name: Configure MySQL server
+  copy: src=server.cnf dest=/etc/mysql/conf.d/custom.cnf owner=root group=root mode=0644
+  notify: Restart MySQL
+
+- name: Configure MySQL clients
+  template: src=client.cnf.j2 dest=~vagrant/.my.cnf owner=vagrant group=vagrant mode=0600
+
+- name: Check if SQL files exist
+  stat: path=/vagrant/database/{{ item }}.sql
+  with_items: mysql_dbs
+  register: sql_files
+
+- name: Populate new databases
+  mysql_db: state=import name={{ item.1 }} target=/vagrant/database/{{ item.1 }}.sql
+  with_indexed_items: mysql_dbs
+  # Only when the database was just created AND the .sql file exists
+  when: created_dbs.results[item.0].changed and sql_files.results[item.0].stat.exists
+
+- name: Set up cron job to backup databases
+  cron: user=vagrant name="Backup MySQL databases" minute="*/5" job="[ -x /vagrant/scripts/save-db.sh ] && /vagrant/scripts/save-db.sh --cron"

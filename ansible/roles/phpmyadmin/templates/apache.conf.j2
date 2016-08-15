@@ -1,0 +1,15 @@
+<VirtualHost *:80>
+
+    ServerName pma.{{ ansible_fqdn }}
+
+    DocumentRoot /srv/phpmyadmin-STABLE
+
+</VirtualHost>
+
+<Directory /srv/phpmyadmin-STABLE>
+
+    Options Indexes FollowSymLinks MultiViews
+    AllowOverride All
+    Require all granted
+
+</Directory>

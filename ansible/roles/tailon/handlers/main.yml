@@ -1,0 +1,2 @@
+- name: Restart Tailon
+  service: name=tailon state=restarted

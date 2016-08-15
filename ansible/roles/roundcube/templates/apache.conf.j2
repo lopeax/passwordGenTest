@@ -1,0 +1,15 @@
+<VirtualHost *:80>
+
+    ServerName mail.{{ ansible_fqdn }}
+
+    DocumentRoot /srv/roundcubemail-1.1.3
+
+</VirtualHost>
+
+<Directory /srv/roundcubemail-1.1.3>
+
+    Options Indexes FollowSymLinks MultiViews
+    AllowOverride All
+    Require all granted
+
+</Directory>

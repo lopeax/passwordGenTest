@@ -1,0 +1,10 @@
+- name: Install pip
+  apt: pkg=python-pip state=installed
+
+- name: Check if requirements.txt exists
+  stat: path=/vagrant/requirements.txt
+  register: requirements_txt
+
+- name: Install PHP packages from requirements.txt
+  pip: requirements=/vagrant/requirements.txt state=present
+  when: requirements_txt.stat.exists

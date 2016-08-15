@@ -1,0 +1,21 @@
+<VirtualHost *:80>
+
+    ServerName logs.{{ ansible_fqdn }}
+
+    # Websockets
+    ProxyPass /ws/ ws://localhost:54845/ws/
+
+    ProxyPass / http://localhost:54845/
+    ProxyPassReverse / http://localhost:54845/
+
+    ErrorDocument 503 "Tailon is not currently running..."
+
+</VirtualHost>
+
+<Directory /srv/phpmyadmin-STABLE>
+
+    Options Indexes FollowSymLinks MultiViews
+    AllowOverride All
+    Require all granted
+
+</Directory>

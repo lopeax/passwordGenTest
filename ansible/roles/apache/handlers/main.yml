@@ -1,0 +1,2 @@
+- name: Reload Apache configuration
+  service: name=apache2 state=reloaded

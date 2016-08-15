@@ -1,0 +1,29 @@
+<VirtualHost *:80>
+
+    ServerName {{ ansible_fqdn }}
+    ServerAlias www.{{ ansible_fqdn }}
+
+    DocumentRoot /vagrant/www
+
+</VirtualHost>
+
+<IfModule mod_ssl.c>
+    <VirtualHost *:443>
+
+        SSLEngine on
+
+        ServerName {{ ansible_fqdn }}
+        ServerAlias www.{{ ansible_fqdn }}
+
+        DocumentRoot /vagrant/www
+
+    </VirtualHost>
+</IfModule>
+
+<Directory /vagrant/www>
+
+    Options Indexes FollowSymLinks MultiViews
+    AllowOverride All
+    Require all granted
+
+</Directory>

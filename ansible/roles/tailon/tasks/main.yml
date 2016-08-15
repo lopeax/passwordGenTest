@@ -1,0 +1,26 @@
+- name: Enable Apache proxy modules
+  apache2_module: name={{ item }} state=present
+  with_items:
+    - proxy_http
+    - proxy_wstunnel
+  notify: Reload Apache configuration
+
+- name: Install Tailon
+  pip: name=tailon state=latest
+
+- name: Configure Tailon
+  copy: src=config.yml dest=/etc/tailon.yml mode=0644
+  notify: Restart Tailon
+
+- name: Set log file permissions
+  file: path=/var/log mode=ugo+rX recurse=yes
+
+- name: Create tailon service
+  copy: src=upstart.conf dest=/etc/init/tailon.conf mode=0644
+
+- name: Start tailon service
+  service: name=tailon state=started
+
+- name: Configure Apache vhost for Tailon
+  template: src=apache.conf.j2 dest=/etc/apache2/sites-enabled/tailon.conf mode=0644
+  notify: Reload Apache configuration

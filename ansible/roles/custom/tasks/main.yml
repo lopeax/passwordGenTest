@@ -1,0 +1,9 @@
+#===============================================================================
+# Add project-specific tasks here...
+# Documentation: http://docs.ansible.com/
+#===============================================================================
+
+# - name: Install additional packages
+#   apt: pkg={{ item }} state=installed
+#   with_items:
+#     - ...

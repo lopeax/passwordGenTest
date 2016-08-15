@@ -1,0 +1,49 @@
+- name: Install PHP packages
+  apt: pkg={{ item }} state=installed
+  with_items:
+    - libapache2-mod-suphp
+    - php-pear
+    - php5-cli
+    - php5-common
+    - php5-curl
+    - php5-dev
+    - php5-gd
+    - php5-imap
+    - php5-ldap
+    - php5-mcrypt
+    - php5-mysqlnd
+    - php5-readline
+    - php5-xdebug
+
+- name: Enable PHP modules
+  command: /usr/sbin/php5enmod {{ item }} creates=/etc/php5/cli/conf.d/20-{{ item }}.ini
+  with_items:
+    - mcrypt
+
+- name: Configure PHP (CGI)
+  copy: src=php.ini dest=/etc/php5/cgi/conf.d/custom.ini
+
+- name: Configure PHP (CLI)
+  copy: src=php.ini dest=/etc/php5/cli/conf.d/custom.ini
+
+- name: Configure suPHP
+  copy: src=suphp.conf dest=/etc/suphp/suphp.conf
+
+- name: Install Composer
+  shell: curl -sS https://getcomposer.org/installer | tail -n +2 | php -- --install-dir=/usr/local/bin --filename=composer creates=/usr/local/bin/composer
+  register: composer_install
+
+- name: Upgrade Composer
+  command: /usr/local/bin/composer self-update
+  when: not composer_install.changed
+  register: composer_upgrade
+  changed_when: "'Updating to version' in composer_upgrade.stderr"
+
+- name: Check if composer.json exists
+  stat: path=/vagrant/composer.json
+  register: composer_json
+
+- name: Install PHP packages from composer.json
+  composer: working_dir=/vagrant command=install no_dev=no
+  become: no # So that we can use SSH keys
+  when: composer_json.stat.exists

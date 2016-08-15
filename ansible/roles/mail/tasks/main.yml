@@ -1,0 +1,9 @@
+- name: Install mail packages
+  apt: pkg={{ item }} state=installed
+  with_items:
+    - mailutils     # Everything we need to send emails
+    - mutt          # CLI email reader
+    - dovecot-imapd # IMAP server for Roundcube to use
+
+- name: Configure Dovecot
+  template: src=dovecot.conf.j2 dest=/etc/dovecot/conf.d/vagrant.conf

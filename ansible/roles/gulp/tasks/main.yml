@@ -1,0 +1,14 @@
+- name: Install GraphicsMagick (for image resizing)
+  apt: pkg=graphicsmagick state=installed
+
+- name: Install/update Gulp
+  npm: name={{ item }} state=latest global=yes production=yes
+  with_items:
+    - gulp
+
+    # Gulper automatically reloads Gulp when the Gulpfile is modified. Note: It
+    # doesn't work when the file is modified from the host machine, because it
+    # doesn't poll for changes. There doesn't seem to be any way around that at
+    # the present time (26 Jul 2015) - but it does work if the file is modified
+    # using Vim over SSH.
+    - gulper
