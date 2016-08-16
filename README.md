@@ -34,6 +34,6 @@ vagrant ssh
 Visit http://passwordgen.test/generator/tests/test.php to view the tests or run these commands
 ```bash
 vagrant ssh
-cd /vagrant/www/generator
-php tests/test.php
+php /vagrant/www/generator/tests/test.php
 ```
+Note: the test.php file contains br tags, which will come up as characters when using command line
