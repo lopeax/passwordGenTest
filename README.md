@@ -31,4 +31,9 @@ Then ssh into the machine
 vagrant ssh
 ```
 
-Visit http://passwordgen.test/generator/tests/test.php to view the tests
+Visit http://passwordgen.test/generator/tests/test.php to view the tests or run these commands
+```bash
+vagrant ssh
+cd /vagrant/www/generator
+php tests/test.php
+```
