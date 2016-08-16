@@ -31,9 +31,10 @@ Then ssh into the machine
 vagrant ssh
 ```
 
-Visit http://passwordgen.test/generator/tests/test.php to view the tests or run these commands
+Visit http://passwordgen.test/generator/tests/test.php to view the tests or run these commands after sshing to the box
 ```bash
-vagrant ssh
-php /vagrant/www/generator/tests/test.php
+php /vagrant/www/generator/tests/defaults.php
+php /vagrant/www/generator/tests/setLength.php
+php /vagrant/www/generator/tests/setKeyspace.php
+php /vagrant/www/generator/tests/setLengthAndSetKeyspace.php
 ```
-Note: the test.php file contains br tags, which will come up as characters when using command line
