@@ -31,7 +31,7 @@ Then ssh into the machine
 vagrant ssh
 ```
 
-Visit http://passwordgen.test/generator/tests/test.php to view the tests or run these commands after sshing to the box
+For testing run these commands after sshing to the box (or visit their relative links in the browser)
 ```bash
 php /vagrant/www/generator/tests/defaults.php
 php /vagrant/www/generator/tests/setLength.php
